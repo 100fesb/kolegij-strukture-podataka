@@ -42,7 +42,10 @@ int main()
 	int maxPoints = 0;
 
 	fileName = (char*)malloc(sizeof(char) * MAX_PATH);
-	if (fileName == NULL) printf("Greska prilikom alokacije buffera za file :(((");
+	if (fileName == NULL){
+		printf("Greska prilikom alokacije buffera za file :(((");
+		return -1;
+	}
 
 	printf("Unesite ime datoteke: ");
 	scanf(" %s", fileName);
@@ -53,7 +56,10 @@ int main()
 	{
 		printf("Izbrojeno %d zapisa.", lineN);
 		popis = (_pstud)malloc(sizeof(_STUDENT) * lineN);
-		if (popis == NULL) printf("Greska prilikom alokacije popisa studenata :(");
+		if (popis == NULL){
+			printf("Greska prilikom alokacije popisa studenata :(");
+			return -1;
+		}
 
 		maxPoints = ReadRecords(lineN, popis, fileName);
 		printf("\nMaksimalni broj bodova: %d", maxPoints);
@@ -78,10 +84,15 @@ int CountRecords(char* fName)
 	int n = 0;
 
 	fp = fopen(fName, "r");
-	if (fp == NULL) printf("Nije bilo moguce otvoriti datoteku '%s'. Provjerite tocnost unosa.", fName);
-
+	if (fp == NULL){
+		printf("Nije bilo moguce otvoriti datoteku '%s'. Provjerite tocnost unosa.", fName);
+		return -1;
+	}
 	buff = (char*)malloc(sizeof(char) * BUFFER_LEN);
-	if (buff == NULL) printf("Greska prilikom alokacije buffera :((");
+	if (buff == NULL){
+		printf("Greska prilikom alokacije buffera :((");
+		return -1;
+	}
 
 	while (!feof(fp))
 	{
@@ -100,11 +111,17 @@ int ReadRecords(int n, _pstud P, char* fName)
 	int maxP = 0;
 
 	fp = fopen(fName, "r");
-	if (fp == NULL) printf("Nije bilo moguce otvoriti datoteku '%s'. Provjerite tocnost unosa.", fName);
-
+	if (fp == NULL){ 
+		printf("Nije bilo moguce otvoriti datoteku '%s'. Provjerite tocnost unosa.", fName);
+		return -1;
+	}
+	
 	buff = (char*)malloc(sizeof(char) * BUFFER_LEN);
-	if (buff == NULL) printf("Greska prilikom alokacije buffera :((");
-
+	if (buff == NULL){
+		printf("Greska prilikom alokacije buffera :((");
+		return -1;
+	}
+	
 	while (!feof(fp))
 	{
 		fgets(buff, BUFFER_LEN, fp);
