@@ -23,20 +23,26 @@ e) èita listu iz datoteke.
 #include <stdio.h>		//standardna biblioteka(printf,scanf,...)
 #include <stdlib.h>		//biblioteka za (NULL,malloc,...)
 
+
 typedef struct Cvor* Pozicija;		//deklaracija pokazivaca na strukturu cvor a ime pokazivaca je Pozicija
 
 struct Cvor {		//deklaracija strukture
 	char Ime[N_LENGTH];		//niz karaktera maksimalne duljine N_LENGTH
 	char Prezime[N_LENGTH];		//niz karaktera maksimalne duljine N_LENGTH
 	int God_rod;		//deklaracija int God_rod
-	Pozicija Next;		?//deklaracija pokazivaca na funckiju imena Next
+	Pozicija Next;		//deklaracija pokazivaca na funckiju imena Next
 };
 
 int unosPocetak(Pozicija);		//protorip funckije koja prima pokazivac na strukturu
 int ispis(Pozicija);		//protorip funckije koja prima pokazivac na strukturu
 int unosKraj(Pozicija);		//protorip funckije koja prima pokazivac na strukturu
 Pozicija traziPrez(Pozicija);		//protorip funckije koja prima pokazivac na strukturu
-int brisiPrez(Pozicija, Pozicija);		//protorip funckije koja prima pokazivac na strukturu i to prvo one koju brisemo a druga je &Head
+int brisiPrez(Pozicija, Pozicija);		//protorip funckije koja prima pokazivac na strukturu i to prvo one koju brisemo a druga je &Head-a
+int unosiza(Pozicija, Pozicija);		//prototip funckije koja prima pokazivac na strukturu i to prvo onu iza koje unosimo a onda &Head-a
+int unosispred(Pozicija);		//prototip funkcije koja prima pokazivac na strukturu i to prvo one ispred koje unosimo a onda &Head-a
+int sortiraj(Pozicija);		//prototip funckije koja sortira od najmanjeg pocetnog prezimena do najveceg
+int upisujeuFile(Pozicija);		//prototip funckije koja zapisuje listu u datoteku
+int citaizFile(Pozicija);		//prototip funckije koja cita listu iz datoteke
 
 int main()		//main koja ne prima nista
 {
@@ -65,7 +71,7 @@ int main()		//main koja ne prima nista
 		ispis(Head.Next);		//pozivamo funkciju za ispis i saljemo joj pokazivac iz Head-a
 	}
 
-	
+	/*
 	test = traziPrez(&Head);		//pozivamo funckiju traziPrez i ona vraca pokazivac na onu strukturu u kojoj se nalazi prezime koje smo trazili
 	printf("To je osoba %s %s rodjena %d.", test->Ime, test->Prezime, test->God_rod);		//pomocu printf ispisujemo tu osobu te pazi koristimo -> jer ispisujemo pomocu pokazivaca na funckije
 
@@ -74,7 +80,24 @@ int main()		//main koja ne prima nista
 	brisiPrez(test, &Head);		//pozivamo funckiju koja brise tu strukturu i povezuje onu prije nje sa onom nakon nje
 
 	ispis(Head.Next);		//pozivamo funckiju za ispis i saljemo joj pokazivac iz Head-a dalje jer u Head-u nema osoba to je samo prvi element liste
+	
+	test = traziPrez(&Head);		//pozivamo funckiju traziPrez i ona vraca pokazivac na onu strukturu u kojoj se nalazi prezime koje smo trazili
+	unosispred(test,&Head);		//funckija prima pokazivac na element liste ispred kojega upisujemo i adresu Head-a
+	ispis(Head.Next);		//pozivamo funckiju za ispis i saljemo joj pokazivac iz Head-a dalje jer u Head-u nema osoba to je samo prvi element liste
+	
+	test = traziPrez(&Head);		//pozivamo funckiju traziPrez i ona vraca pokazivac na onu strukturu u kojoj se nalazi prezime koje smo trazili
+	unosiza(test, &Head);		//funckija prima pokazivac na element liste iza kojeg upisujemo i na Head
+	ispis(Head.Next);		//pozivamo funckiju za ispis i saljemo joj pokazivac iz Head-a dalje jer u Head-u nema osoba to je samo prvi element liste
+	
+	sortiraj(&Head);		//funckija sortira listu po prezimenima a prima adresu Head-a
+	ispis(Head.Next);		//pozivamo funckiju za ispis i saljemo joj pokazivac iz Head-a dalje jer u Head-u nema osoba to je samo prvi element liste
+	*/
 
+	citaizFile(&Head);
+	ispis(Head.Next);
+
+	upisujeuFile(&Head);
+	ispis(Head.Next);
 
 	return 0;		//ako je sve proslo dobro program vraca nulu i to znaci alles gut
 }
@@ -172,7 +195,112 @@ int brisiPrez(Pozicija brisiMe, Pozicija P) 		//funckija brise element liste te 
 	}
 	if (P == NULL) {		//ako je pokazivac na P NULL znaci da nismo izbrisali
 		printf("\nNije izbrisana osoba.");		//poruka obavijesti
-		return NULL;		//vraca NULL kao i sto se vrati 0
+		return 0;		//vraca 0
 	}
 }
 
+int unosiza(Pozicija unesiiza,Pozicija P)		//funkcija prima pokazivac na element iza kojeg upisujemo i adresu Head-a
+{
+	while (P != NULL && P != unesiiza)		//dok nismo dosli do kraja liste(NULL) ili do elementa iza kojeg upisujemo
+		P = P->Next;		//prebacuje pokazivac
+	if (P != NULL) {		//petlja se izvrsava ako pokazivac P nije NULL
+		Pozicija temp = (Pozicija)malloc(sizeof(struct Cvor));		//dinamicki alocira memoriju za temp
+
+		printf("\nUnesite ime, prezime, godinu rodjenja:\n");		//da lipse izgleda
+		scanf(" %s", temp->Ime);		//unos imena
+		scanf(" %s", temp->Prezime);		//unos prezimena
+		scanf(" %d", &temp->God_rod);		//unos godine
+
+		temp->Next = P->Next;		//pokazivac koji je bia u Next-u na clanu ispred kojeg unosimo postavljamo kao Next u temp
+		P->Next = temp;		//pokazivac prethodnog koji je pokaziva na taj ispred kojeg unosimo stavimo da pokazuje na temp
+	}
+
+	return 0;		//vrati nulu ako je sve ok 
+}
+
+int unosispred(Pozicija unesiispred,Pozicija P)		//funckija prima pokazivac na onoga ispred kojega upisujemo i adresu Head-a
+{
+	while (P->Next != NULL && P->Next != unesiispred)		//dok nismo dosli do kraja liste(NULL) ili do elementa ispred kojeg upisujemo setamo po listi
+		P = P->Next;		//prebacuje pokazivac
+	if (P->Next != NULL) {		//provjerava jeli pokazivac na NULL
+		Pozicija temp = (Pozicija)malloc(sizeof(struct Cvor));		//dinamicki alocira memoriju za temp
+
+		printf("\nUnesite ime, prezime, godinu rodjenja:\n");		//da lipse izgleda
+		scanf(" %s", temp->Ime);		//unos imena
+		scanf(" %s", temp->Prezime);		//unos prezimena
+		scanf(" %d", &temp->God_rod);		//unos godine
+
+		temp->Next = P->Next;		//pokazivac koji je bia u Next-u na clanu ispred kojeg unosimo postavljamo kao Next u temp
+		P->Next = temp;		//pokazivac prethodnog koji je pokaziva na taj ispred kojeg unosimo stavimo da pokazuje na temp
+	}
+	return 0;		//ako vrati nulu znaci da je sve u redu proslo
+}
+//NE UCI OVO NECE BITI JEDINO MOZE BITI SORTIRANI UNOS
+int sortiraj(Pozicija P) {		//deklarirali smo da je P adresa Head-a 
+	Pozicija end = NULL,j=NULL,prevj=P,temp=NULL;		//inicijalizirali smo varijable na NULL i stavili da je prevj isto pokazivac na Head		
+	while (P->Next != end){		//dok nismo dosli do end se izvrsava
+		prevj = P;		//postavlja da je prevj pokazivac na Head
+		j = P->Next;		//j postaje pokazivac na P->Next
+
+		while (j->Next != end) {		//dok pokazivac j->Next nije dosao do end se izvrsava
+			if (strcmp(j->Prezime, j->Next->Prezime) > 0) {		//ako je prvo prezime po ASCII vece od drugog onda vraca vrijednost vecu od nula
+				temp = j->Next;		//temp postaje pokazivac j->Next
+				j->Next=temp->Next;		//j->Next postaje pokazivac temp->Next
+				temp->Next = j;		//temp->Next postaje pokazivac j
+				prevj->Next = temp;		//prevj->Next postaje pokazivac temp
+				j = prevj->Next;		//j postaje pokazivac prevj->Next
+			}
+			prevj = j;		//prevj postaje pokazivac j
+			j = prevj->Next;		//j postaje pokazivac prevj->Next
+		}
+		end = j;		//end postaje pokazivac j
+	}
+	return 0;		//ako je sve ok program vraca nulu
+}
+
+int upisujeuFile(Pozicija P) {		//funkcija prima adresu Head-a
+
+	char* fileName = NULL;		//inicijalizacija pokazivaca na fileName na NULL
+	FILE* fp = NULL;		//inicijalizacija pokazivaca fp na FILE na NULL
+
+	fileName = (char*)malloc(sizeof(char) * N_LENGTH);		//dinamicka alokacija imena za fileName
+	if (fileName == NULL) printf("Greska prilikom alokacije");		//provjera jeli se dobro inicijaliziralo
+	printf("Unesite ime datoteke:");		//printf upitnik
+	scanf(" %s",fileName);		//unos imena datoteke s tim da moramo paziti na .txt
+
+	fp = fopen(fileName, "w");		//naredba za otvaranje datoteke u modu za pisanje u nju
+	if (fp = NULL) printf("Nije bilo moguce otvoriti datoteku");		//poruka u slucaju pogreske
+	while (P != NULL) {			//izvrsava se dok P nije NULL
+		fprintf(fp, " %s %s %d", P->Ime, P->Prezime, P->God_rod);		//ispisuje redak
+		P = P->Next;		//prebacuje pokazivac na sljedeci
+
+		if (P != NULL) printf(fp,"\n");		//stavlja novi red da se nebi sve ispisalo u isti red
+	}
+	fclose(fp);		//zatvara datoteku da se moze koristiti i u drugim programima
+
+	return 0;		//vraca 0 ako je sve proslo ok
+}
+
+int citaizFile(Pozicija P) {		//prima adresu na Head
+
+	Pozicija test = NULL;		//inicijalizira pokazivac na strukturu na NULL
+	char* fileName = NULL;		//inicijalizira pokazivac na ime datoteke na NULL
+	FILE* fp = NULL;		//inicijalizira pokazivac na FILE na NULL
+	fileName = (char*)malloc(sizeof(char) * N_LENGTH);		//dinamicki alocira memoriju za ime datoteke
+	if (fileName == NULL) printf("Greska prilikom alokacije");		//provjera jeli se pohranilo ime datoteke
+
+	printf("\nUnesite datoteku za citanje : ");		//printf upitnik
+	scanf(" %s", fileName);		//unos imena datoteke ali pazi da stavis .txt
+
+	fp = fopen(fileName, "r");		//naredba za otvaranje datoteke imena fileName
+	if (fp == NULL) printf("\nDatoteka nije otvorena");		//provjera jeli otvorena uspjesno
+
+	while (!feof(fp)) {		//izvrsava se dok nismo dosli do kraja datoteke
+		fscanf(fp, " %s %s %d", test->Ime, test->Prezime, &test->God_rod);		//cita i sprema elemente tog retka
+		test->Next = P->Next;		//povezujemo na sljedeci
+		P->Next = test;		//povezujemo prethodni
+	}
+	fclose(fp);		//zatvaramo datoteku da je mogu koristiti i druge funckije ili programi
+
+	return 0;		//vraca 0 ako je sve ok proslo
+}
