@@ -1,134 +1,307 @@
 /*
-Napisati program koji prvo pro�ita koliko redaka ima datoteka, tj. koliko ima studenata
-zapisanih u datoteci. Nakon toga potrebno je dinami�ki alocirati prostor za niz struktura
-studenata (ime, prezime, bodovi) i u�itati iz datoteke sve zapise. Na ekran ispisati ime,
-prezime,apsolutni i relativni broj bodova.
-Napomena: Svaki redak datoteke sadr�i ime i prezime studenta, te broj bodova na kolokviju.
-relatvan_br_bodova = br_bodova/max_br_bodova*100
+Zadatak 2.
+Definirati strukturu osoba (ime, prezime, godina rođenja) i napisati program koji:
+a) dinamički dodaje novi element na početak liste,
+b) ispisuje listu,
+c) dinamički dodaje novi element na kraj liste,
+d) pronalazi element u listi (po prezimenu),
+e) briše određeni element iz liste,
+U zadatku se ne smiju koristiti globalne varijable.
+Zadatak 3.
+Prethodnom zadatku dodati funkcije:
+a) dinamički dodaje novi element iza određenog elementa,
+b) dinamički dodaje novi element ispred određenog elementa,
+c) sortira listu po prezimenima osoba,
+d) upisuje listu u datoteku,
+e) čita listu iz datoteke.
 */
 
-#define _CRT_SECURE_NO_WARNINGS		//ne moramo koristiti windows funkcije
-
-#define BUFFER_LEN 1024		//stavljamo konstantu da nam je kasnije lakse mjenjati velicinu
-#define MAX_PATH 1025		//stavljamo konstantu da nam je kasnije lakse mjenjati velicinu
-#define NAME_BUFFER_LENGTH 128		//stavljamo konstantu da nam je kasnije lakse mjenjati velicinu
+#define _CRT_SECURE_NO_WARNINGS		//da ne moramo koristiti windows funckije
+#define N_LENGTH 1024		//pisemo ovo u [] da nam je lakse povecati ako nam zatreba
 
 #include <stdio.h>		//standardna biblioteka(printf,scanf,...)
-#include <stdlib.h>		//standrardna biblioteka(NULL,malloc,...)
-#include <string.h>		//standardna biblioteka(string,...)
+#include <stdlib.h>		//biblioteka za (NULL,malloc,...)
 
 
-typedef struct _student _STUDENT;		//deklarirali smo strukturu imena _STUDENT koja ima parametre kao _student
-typedef struct _student* _pstud;		//deklarirali smo pokazivac *_pstud na strukturu _student
+typedef struct Cvor* Pozicija;		//deklaracija pokazivaca na strukturu cvor a ime pokazivaca je Pozicija
 
-struct _student		//tip i naziv strukture
-{		
-	char ime[NAME_BUFFER_LENGTH];		//niz karaktera imena ime a maksimalne duljine NAME_BUFFER_LENGTH
-	char prezime[NAME_BUFFER_LENGTH];		//niz karaktera imena prezime a maksimalne duljine NAME_BUFFER_LENGTH
-	int bodovi;		//varijabla bodovi tipa int
+struct Cvor {		//deklaracija strukture
+	char Ime[N_LENGTH];		//niz karaktera maksimalne duljine N_LENGTH
+	char Prezime[N_LENGTH];		//niz karaktera maksimalne duljine N_LENGTH
+	int God_rod;		//deklaracija int God_rod
+	Pozicija Next;		//deklaracija pokazivaca na funckiju imena Next
 };
 
+int unosPocetak(Pozicija);		//protorip funckije koja prima pokazivac na strukturu
+int ispis(Pozicija);		//protorip funckije koja prima pokazivac na strukturu
+int unosKraj(Pozicija);		//protorip funckije koja prima pokazivac na strukturu
+Pozicija traziPrez(Pozicija);		//protorip funckije koja prima pokazivac na strukturu
+int brisiPrez(Pozicija, Pozicija);		//protorip funckije koja prima pokazivac na strukturu i to prvo one koju brisemo a druga je &Head-a
+int unosiza(Pozicija, Pozicija);		//prototip funckije koja prima pokazivac na strukturu i to prvo onu iza koje unosimo a onda &Head-a
+int unosispred(Pozicija);		//prototip funkcije koja prima pokazivac na strukturu i to prvo one ispred koje unosimo a onda &Head-a
+int sortiraj(Pozicija);		//prototip funckije koja sortira od najmanjeg pocetnog prezimena do najveceg
+int upisujeuFile(Pozicija);		//prototip funckije koja zapisuje listu u datoteku
+int citaizFile(Pozicija);		//prototip funckije koja cita listu iz datoteke
 
-int CountRecords(char*);		//prototip funkcije CountRecords(broji koliko ima clanova) koji prima pokazivac na datoteku a vraca int
-int ReadRecords(int, _pstud, char*);		//prototip funckije ReadRecords(cita i racuna maksimalni broj bodova) koja prima broj osoba u datoteci,pokazivac na strukturu i pokazivac na datoteku bodova a vraca maksimalni broj bodova
-int PrintRecords(int, _pstud, int);		//prototip funckije PrintRecords(ispisuje sve clanove datoteke) koja prima broj osoba,pokazivac na strukturu i pokazivac na datoteku a ispisuje na ekran
-
-int main()		//main funckija koja ne prima nista
+int main()		//main koja ne prima nista
 {
-
-	char* fileName = NULL;		//pokazivac na datoteku i inicijaliziran na nulu
-	int lineN = 0;		//broj clanova u datoteci i inicijaliziran na nulu
-	_pstud popis = NULL;		//pokazivac na strukturu i inicijaliziran na nulu
-	int maxPoints = 0;		//broj maksimalnih bodova i inicijaliziran na nulu
-
-	fileName = (char*)malloc(sizeof(char)* MAX_PATH);		//dinamicka alokacija memorije za ime datoteke
-	if (fileName == NULL) printf("Greska prilikom alokacije buffera za file :(((");		//ako je alocirana memorija nula znaci da se dogodila greska
-
-	printf("Unesite ime datoteke: ");		//printf obicni da lipse izgleda
-	scanf(" %s", fileName);		//upisujemo naziv datoteke
-
-	lineN = CountRecords(fileName);		//brojimo pomocu funckije i spremamo u lineN koliko ima osoba ili redaka u datoteci
-
-	if (lineN > 0)		//ako ima vise od nula osoba
-	{
-		printf("Izbrojeno %d zapisa.", lineN);		//ispisuje koliko ima osoba
-		popis = (_pstud)malloc(sizeof(_STUDENT)* lineN);		//dinamicka alokacija memorije za onoliko struktura koliko redaka ima datoteka	
-		if (popis == NULL) printf("Greska prilikom alokacije popisa studenata :(");		//ako je alocirana memorija nula znaci da se dogodila greska
-
-		maxPoints = ReadRecords(lineN, popis, fileName);		//pomocu funckije trazimno maksimalni broj bodova
-		printf("\nMaksimalni broj bodova: %d", maxPoints);		//printf obicni da lipse izgleda
-
-		PrintRecords(lineN, popis, maxPoints);		//funckija za ispis datoteke
-	}
-	else{		//kontra uvjet od if ako je broj clanova nula
-		printf("Nema zapisa u datoteci.");		//printf obicni da lipse izgleda
-	}
+	struct Cvor Head = { 0,NULL };		//Head je ime prve stukture u listi,0 je jer nema osoba u Head-u a NULL je jer su joj clanovi prazni
+	struct Cvor* test = NULL;		//pokazivac na strukturu Cvor inicijaliziran na NULL
 	
+	int broj_el = 0;		//broj_el deklariran i inicijaliziran na 0
 
 
-	
+	printf("Koliko osoba na pocetak liste? ");		//printf pita koliko osoba na pocetak liste zelimo unijeti
+	scanf(" %d", &broj_el);		//unosimo taj broj osoba i on se sprema na adresu &broj_el
 
-	return 0;		//return 0 zapravo znaci da je program uspjesno izvrsen
-}
-
-int CountRecords(char* fName)		//funckija koja broji koliko ima clanova
-{
-	FILE* fp = NULL;		//pokazivac na datoteku smo inicijalizirali na nula
-	char* buff = NULL;		//
-	int n = 0;		//inicijalizacija varijable n na nula i deklaracija naravno
-
-	fp = fopen(fName, "r");		//naredba za otvaranje file-a i citanje iz njega da je bilo "w" onda bi bila za pisanje u njega
-	if (fp == NULL) printf("Nije bilo moguce otvoriti datoteku '%s'. Provjerite tocnost unosa.", fName);		//javlja pomocu printf da nismo uspili otvoriti datoteku
-
-	buff = (char*)malloc(sizeof(char)* BUFFER_LEN);		//dinamicka alokacija memorije za buff
-	if (buff == NULL) printf("Greska prilikom alokacije buffera :((");		//ako je buff NULL znaci da nije uspjela dinamicka alokacija memorije za njega
-
-	while (!feof(fp))		//funkcija se odvija dok nije dosla do kraja file-a
+	for (int i = 0; i < broj_el; i++)		//for se izvrti onoliko puta koliko smo htjeli unijeti osoba
 	{
-		fgets(buff, BUFFER_LEN, fp);		//funckija fgets uzima red iz fp sprema ga u buff i to radi BUFFER_LEN-1 puta i onda se zavrsi i program nastavlja dalje
-		n++;		//raste varijabla n za jedan svaki put kad se izvrsi fgets
+		unosPocetak(&Head);		//pozivamo funckiju za unos na pocetak i saljemo joj adresu od Head
+		ispis(Head.Next);		//pozivamo funckiju za ispis i saljemo joj pokazivac iz Head-a
 	}
 
-	fclose(fp);		//funckija zatvara datoteku
-	return n;		//funckija vraca broj redaka n 
-}
 
-int ReadRecords(int n, _pstud P, char* fName)		//funckija ReadRecords koja prima broj redaka,pokazivac na strukturu i pokazivac na datoteku
-{
-	FILE* fp = NULL;		//deklaracija i inicijalizacija pokazivaca na file na NULL
-	char* buff = NULL;		//deklaracija i inicijalizacija pokazivaca na buff na NULL
-	int maxP = 0;		//deklaracija i inicijalizacija varijable za maksimalni broj bodova na 0
+	printf("\nKoliko osoba na kraj liste? ");		//printf pita koliko zelimo osoba na kraj liste
+	scanf(" %d", &broj_el);		//prepisujemo na istu adresu koju smo koristili za broj osoba na pocetak
 
-	fp = fopen(fName, "r");		//funckija koja otvara datoteku fname 
-	if (fp == NULL) printf("Nije bilo moguce otvoriti datoteku '%s'. Provjerite tocnost unosa.", fName);		//ako je fp NULL znaci da je otvaranje datoteke bilo neuspjesno
-
-	buff = (char*)malloc(sizeof(char)* BUFFER_LEN);		//dinamicka alokacija memorije za buff koji sluzi kao pomoc za sscanf
-	if (buff == NULL) printf("Greska prilikom alokacije buffera :((");		//ako je buff NULL znaci da alokacija nije uspjela
-
-	while (!feof(fp))		//funckija while se izvrsava dok god nismo dosli do zadnjeg retka
+	for (int i = 0; i < broj_el; i++)		//for se izvrti onoliko puta koliko smo htjeli unijeti osoba
 	{
-		fgets(buff, BUFFER_LEN, fp);		//uzima jedan red pohranjuje ga u buff a pomocu BUFFER_LENGTH zna kolika mu je duljina
-		sscanf(buff, "  %d %s %s", &P->bodovi, P->ime, P->prezime);		//uzima iz datoteke bodove,ime i prezime i sprema na neko vrijeme u strukturu P
-
-		if (P->bodovi > maxP)		//ako je zadnji maksimalni broj bodova veci od prijasnjeg onda se if izvrsava
-			maxP = P->bodovi;		//maxP pridodjeljujemo broj bodova koji smo ode poslali preko pokazivaca P iz strukture _student
-		P++;		//raste vrijednost od P 
+		unosKraj(&Head);		//pozivamo funckiju za unos na kraj i saljemo joj adresu Head
+		ispis(Head.Next);		//pozivamo funkciju za ispis i saljemo joj pokazivac iz Head-a
 	}
 
-	fclose(fp);		//zatvaramo datoteku koju smo koristili
-	return maxP;		//vracamo vrijednost maksimalnog broja bodova
+	/*
+	test = traziPrez(&Head);		//pozivamo funckiju traziPrez i ona vraca pokazivac na onu strukturu u kojoj se nalazi prezime koje smo trazili
+	printf("To je osoba %s %s rodjena %d.", test->Ime, test->Prezime, test->God_rod);		//pomocu printf ispisujemo tu osobu te pazi koristimo -> jer ispisujemo pomocu pokazivaca na funckije
+	printf("\nKoju osobu zelite obrisati?");		//pitamo koliko osoba zelimo obrisati
+	test = traziPrez(&Head);		//pomocu iste funckije traziPrez trazimo po prezimenu osobu koju zelimo izbrisati te vracamo pokazivac na tu strukturu a saljemo adresu Head-a
+	brisiPrez(test, &Head);		//pozivamo funckiju koja brise tu strukturu i povezuje onu prije nje sa onom nakon nje
+	ispis(Head.Next);		//pozivamo funckiju za ispis i saljemo joj pokazivac iz Head-a dalje jer u Head-u nema osoba to je samo prvi element liste
+
+	test = traziPrez(&Head);		//pozivamo funckiju traziPrez i ona vraca pokazivac na onu strukturu u kojoj se nalazi prezime koje smo trazili
+	unosispred(test,&Head);		//funckija prima pokazivac na element liste ispred kojega upisujemo i adresu Head-a
+	ispis(Head.Next);		//pozivamo funckiju za ispis i saljemo joj pokazivac iz Head-a dalje jer u Head-u nema osoba to je samo prvi element liste
+
+	test = traziPrez(&Head);		//pozivamo funckiju traziPrez i ona vraca pokazivac na onu strukturu u kojoj se nalazi prezime koje smo trazili
+	unosiza(test, &Head);		//funckija prima pokazivac na element liste iza kojeg upisujemo i na Head
+	ispis(Head.Next);		//pozivamo funckiju za ispis i saljemo joj pokazivac iz Head-a dalje jer u Head-u nema osoba to je samo prvi element liste
+
+	sortiraj(&Head);		//funckija sortira listu po prezimenima a prima adresu Head-a
+	ispis(Head.Next);		//pozivamo funckiju za ispis i saljemo joj pokazivac iz Head-a dalje jer u Head-u nema osoba to je samo prvi element liste
+	*/
+
+	upisujeuFile(&Head);
+	ispis(Head.Next);
+
+	citaizFile(&Head);
+	ispis(Head.Next);
+
+	return 0;		//ako je sve proslo dobro program vraca nulu i to znaci alles gut
 }
 
-int PrintRecords(int n, _pstud P, int maxPoint)		//funckija prima broj redova,pokazivac na strukturu i pokazivac na file
+int unosPocetak(Pozicija P)		//funkcija unosPocetak prima pokazivac na Head
 {
-	int i = 0;		//deklaracija i inicijalizacija varijable i na nula
-	printf("\nNova tablica ucenika glasi:\n\n\t\t%15s %15s %4s %4s", "Ime", "Prezime", "Aps bodovi", "Relativni bodovi");		//printf vrh tablice u koju printamo clanove
-	for (i = 0; i < n; i++)		//for petlja koja ce se izvrsiti onoliko puta koliko ima ljudi tj redaka
-	{
-		printf("\n\t\t%15s %15s %5d %8d/%d = %6.2f", P->ime, P->prezime, P->bodovi, P->bodovi, maxPoint, ((float)P->bodovi / maxPoint) * 100);		//printf printa clanove i apsolutni i relativni broj bodova
-		P++;		//idemo na sljedecu strukturu u nizu,a to mozemo jer smo alocirali niz struktura
+	Pozicija temp = (Pozicija)malloc(sizeof(struct Cvor));		//dinamicka alokacija memorije za tu strukturu
+
+	printf("\nUnesite ime, prezime, godinu rodjenja:\n");		//govorimo korisniku sto cemo traziti od njega
+	scanf(" %s", temp->Ime);		//unosimo ime
+	scanf(" %s", temp->Prezime);		//unosimo prezime
+	scanf(" %d", &temp->God_rod);		//unosimo godinu rodenja
+
+
+
+	temp->Next = P->Next;		//stavljamo na Next u temp NULL koja je bila na Next u Head-u
+	P->Next = temp;		//onda pokazivac iz Head-a Next stavimo da pokazuje na temp
+
+	return 0;		//ako je sve proslo ok funckija vraca 0
+}
+
+int ispis(Pozicija P)		//funckija za ispis prima pokazivac na prvi clan liste izuzev Head-a
+{
+	printf("\nVasa lista:");		//ispisemo objasnjenje onog sto ispisujemo
+
+	while (P != NULL) {		//dok god pokazivac ne pokazuje na NULL tj dok nismo dosli do zadnjeg clana izvrsava se petlja
+		printf("\n\t");		//printf da lipse izgleda
+		printf("%s\t ", P->Ime);		//ispis imena preko pokazivaca na strukturu
+		printf("%s\t ", P->Prezime);		//ispis prezimena preko pokazivaca na strukturu
+		printf("%d ", P->God_rod);		//ispis godine rodenja preko pokazivaca na strukturu
+
+
+		P = P->Next;		//prebacujemo se na sljedeci clan u listi
 	}
 
-	return 0;		//vraca 0 ako se funckija uspjesno izvrsila
+	return 0;		//ako je sve proslo ok funckija vraca 0
 }
 
+
+
+int unosKraj(Pozicija P)		//funckija prima pokazivac na Head
+{
+	Pozicija temp = (Pozicija)malloc(sizeof(struct Cvor));		//dinamicka alokacija memorije za tu strukturu
+
+	printf("\nUnesite ime, prezime, godinu rodjenja:\n");		//govorimo korisniku sto cemo traziti od njega
+	scanf(" %s", temp->Ime);		//unosimo ime
+	scanf(" %s", temp->Prezime);		//unosimo prezime
+	scanf(" %d", &temp->God_rod);		//unosimo godinu rodenja
+
+	while (P->Next != NULL) {		//funckija se izvrsava dok god nije dosla do zadnjeg clana
+		P = P->Next;		//prebacuje pokazivac na sljedeci
+	}
+
+	temp->Next = P->Next;		//stavljamo na Next u temp NULL koja je bila na Next u Head-u
+	P->Next = temp;		//onda pokazivac iz Head-a Next stavimo da pokazuje na temp
+
+	return 0;		//ako je sve ok funckija vrati 0
+}
+
+Pozicija traziPrez(Pozicija P)		//funckija trazi osobu po prezimenu i vraca pokazivac na tu strukturu a prima adresu Head-a
+{
+	char trazeno_prez[N_LENGTH] = { NULL };		//deklariramo i inicijaliramo niz karaktera za to prezime
+
+	printf("\nKoga trazimo - po prezimenu: ");		//printf nas trazi da unesemo to prezime
+	scanf(" %s", trazeno_prez);		//unosimo to prezime i spremamo pod trazeno_prez
+
+	while (P != NULL) {		//petlja se izrsava dok god nismo dosli do kraja liste ali je prekine kada naide na prezime
+
+		if (!(strcmp(P->Prezime, trazeno_prez)))		//strcmp vraca nulu ako su dva stringa ista zato smo stavili !
+			return P;		//ako su isti vraca pokazivac na tu strukturu gdje je to prezime
+
+		P = P->Next;		//setamo pomocu pokazivaca na sljedeci clan u listi
+	}
+
+	if (P == NULL) {		//ako je pokazivac nakon cijele liste i dalje NULL znaci da nismo nasli tu osobu tj da je nema u listi
+		printf("\nNije nadjena osoba.");		//pomocu printf saljemo poruku korisniku
+		return NULL;		//vracamo NULL sa return sto opet znaci da se program dobro izvrsio te je to isto kao i return 0
+	}
+
+}
+
+
+int brisiPrez(Pozicija brisiMe, Pozicija P) 		//funckija brise element liste te prima pokazivac na element koji brisemo i na Head
+{
+	while (P != NULL) {		//dok pokazivac nije nula se izvrsava
+
+		if (!(strcmp(P->Next->Prezime, brisiMe->Prezime))) {		//ako su isti stringovi(prezime iz sljedece stukture na koju pokazuje p i briseMe prezime) if se izvrsi
+			P->Next = P->Next->Next;		//pokazivac na strukturu proseta jos jednu dalje ako ovo ne stavimo lista vise nije lista
+			printf("Brisemo osobu %s %s rodjena %d.", brisiMe->Ime, brisiMe->Prezime, brisiMe->God_rod);		//isprintamo koju osobu brisemo
+			free(brisiMe);		//funckija koja brise memoriju na kojoj je ta struktura
+		}
+
+		if (brisiMe == NULL) return 0;		//ako je brisi me NULL znaci da smo izbrisali pa je pokazivac na nju NULL
+		P = P->Next;		//prebacimo P na sljedecu strukturu
+	}
+	if (P == NULL) {		//ako je pokazivac na P NULL znaci da nismo izbrisali
+		printf("\nNije izbrisana osoba.");		//poruka obavijesti
+		return 0;		//vraca 0
+	}
+}
+
+int unosiza(Pozicija unesiiza, Pozicija P)		//funkcija prima pokazivac na element iza kojeg upisujemo i adresu Head-a
+{
+	while (P != NULL && P != unesiiza)		//dok nismo dosli do kraja liste(NULL) ili do elementa iza kojeg upisujemo
+		P = P->Next;		//prebacuje pokazivac
+	if (P != NULL) {		//petlja se izvrsava ako pokazivac P nije NULL
+		Pozicija temp = (Pozicija)malloc(sizeof(struct Cvor));		//dinamicki alocira memoriju za temp
+
+		printf("\nUnesite ime, prezime, godinu rodjenja:\n");		//da lipse izgleda
+		scanf(" %s", temp->Ime);		//unos imena
+		scanf(" %s", temp->Prezime);		//unos prezimena
+		scanf(" %d", &temp->God_rod);		//unos godine
+
+		temp->Next = P->Next;		//pokazivac koji je bia u Next-u na clanu ispred kojeg unosimo postavljamo kao Next u temp
+		P->Next = temp;		//pokazivac prethodnog koji je pokaziva na taj ispred kojeg unosimo stavimo da pokazuje na temp
+	}
+
+	return 0;		//vrati nulu ako je sve ok 
+}
+
+int unosispred(Pozicija unesiispred, Pozicija P)		//funckija prima pokazivac na onoga ispred kojega upisujemo i adresu Head-a
+{
+	while (P->Next != NULL && P->Next != unesiispred)		//dok nismo dosli do kraja liste(NULL) ili do elementa ispred kojeg upisujemo setamo po listi
+		P = P->Next;		//prebacuje pokazivac
+	if (P->Next != NULL) {		//provjerava jeli pokazivac na NULL
+		Pozicija temp = (Pozicija)malloc(sizeof(struct Cvor));		//dinamicki alocira memoriju za temp
+
+		printf("\nUnesite ime, prezime, godinu rodjenja:\n");		//da lipse izgleda
+		scanf(" %s", temp->Ime);		//unos imena
+		scanf(" %s", temp->Prezime);		//unos prezimena
+		scanf(" %d", &temp->God_rod);		//unos godine
+
+		temp->Next = P->Next;		//pokazivac koji je bia u Next-u na clanu ispred kojeg unosimo postavljamo kao Next u temp
+		P->Next = temp;		//pokazivac prethodnog koji je pokaziva na taj ispred kojeg unosimo stavimo da pokazuje na temp
+	}
+	return 0;		//ako vrati nulu znaci da je sve u redu proslo
+}
+//NE UCI OVO NECE BITI JEDINO MOZE BITI SORTIRANI UNOS
+int sortiraj(Pozicija P) {		//deklarirali smo da je P adresa Head-a 
+	Pozicija end = NULL, j = NULL, prevj = P, temp = NULL;		//inicijalizirali smo varijable na NULL i stavili da je prevj isto pokazivac na Head		
+	while (P->Next != end) {		//dok nismo dosli do end se izvrsava
+		prevj = P;		//postavlja da je prevj pokazivac na Head
+		j = P->Next;		//j postaje pokazivac na P->Next
+
+		while (j->Next != end) {		//dok pokazivac j->Next nije dosao do end se izvrsava
+			if (strcmp(j->Prezime, j->Next->Prezime) > 0) {		//ako je prvo prezime po ASCII vece od drugog onda vraca vrijednost vecu od nula
+				temp = j->Next;		//temp postaje pokazivac j->Next
+				j->Next = temp->Next;		//j->Next postaje pokazivac temp->Next
+				temp->Next = j;		//temp->Next postaje pokazivac j
+				prevj->Next = temp;		//prevj->Next postaje pokazivac temp
+				j = prevj->Next;		//j postaje pokazivac prevj->Next
+			}
+			prevj = j;		//prevj postaje pokazivac j
+			j = prevj->Next;		//j postaje pokazivac prevj->Next
+		}
+		end = j;		//end postaje pokazivac j
+	}
+	return 0;		//ako je sve ok program vraca nulu
+}
+
+int upisujeuFile(Pozicija P) {		//funkcija prima adresu Head-a
+
+	char* fileName = NULL;		//inicijalizacija pokazivaca na fileName na NULL
+	FILE* fp = NULL;		//inicijalizacija pokazivaca fp na FILE na NULL
+
+	fileName = (char*)malloc(sizeof(char) * N_LENGTH);		//dinamicka alokacija imena za fileName
+	if (fileName == NULL) printf("Greska prilikom alokacije");		//provjera jeli se dobro inicijaliziralo
+	printf("\nUnesite ime datoteke za upis:");		//printf upitnik
+	scanf(" %s", fileName);		//unos imena datoteke s tim da moramo paziti na .txt
+
+	fp = fopen(fileName, "w");		//naredba za otvaranje datoteke u modu za pisanje u nju
+	if (fp == NULL) printf("Nije bilo moguce otvoriti datoteku");		//poruka u slucaju pogreske
+	P = P->Next;
+	while (P != NULL) {			//izvrsava se dok P nije NULL
+		fprintf(fp, "\n");
+		fprintf(fp, " %s %s %d", P->Ime, P->Prezime, P->God_rod);		//ispisuje redak
+		P = P->Next;		//prebacuje pokazivac na sljedeci
+	}
+	fclose(fp);		//zatvara datoteku da se moze koristiti i u drugim programima
+
+	return 0;		//vraca 0 ako je sve proslo ok
+}
+
+int citaizFile(Pozicija P) {		//prima adresu na Head
+
+	Pozicija test = NULL;		//inicijalizira pokazivac na strukturu na NULL
+	char* fileName = NULL;		//inicijalizira pokazivac na ime datoteke na NULL
+	FILE* fp = NULL;		//inicijalizira pokazivac na FILE na NULL
+	fileName = (char*)malloc(sizeof(char) * N_LENGTH);		//dinamicki alocira memoriju za ime datoteke
+	if (fileName == NULL) printf("Greska prilikom alokacije");		//provjera jeli se pohranilo ime datoteke
+
+	test = (Pozicija)malloc(sizeof(struct Cvor));		//dinamicka alokacija za test
+
+	printf("\nUnesite datoteku za citanje: ");		//printf upitnik
+	scanf(" %s", fileName);		//unos imena datoteke ali pazi da stavis .txt
+
+	fp = fopen(fileName, "r");		//naredba za otvaranje datoteke imena fileName
+	if (fp == NULL) printf("\nDatoteka nije otvorena");		//provjera jeli otvorena uspjesno
+
+	while (!feof(fp)) {		//izvrsava se dok nismo dosli do kraja datoteke
+		//test = (Pozicija)malloc(sizeof(struct Cvor));		//dinamicka alokacija ta test
+		fscanf(fp, " %s %s %d", test->Ime, test->Prezime, &test->God_rod);		//cita i sprema elemente tog retka
+		test->Next = P->Next;		//povezujemo na sljedeci
+		P->Next = test;		//povezujemo prethodni
+		P = P->Next;		//hodamo dalje
+	}
+	fclose(fp);		//zatvaramo datoteku da je mogu koristiti i druge funckije ili programi
+
+	return 0;		//vraca 0 ako je sve ok proslo
+}
