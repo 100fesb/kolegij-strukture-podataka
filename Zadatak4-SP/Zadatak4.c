@@ -1,6 +1,6 @@
-/*4. Napisati program za zbrajanje i množenje polinoma. 
-Koeficijenti i eksponenti se èitaju iz datoteke.  
-Napomena: Eksponenti u datoteci nisu nužno sortirani.*/
+/*4. Napisati program za zbrajanje i mnoÅ¾enje polinoma.
+Koeficijenti i eksponenti se Äitaju iz datoteke.
+Napomena: Eksponenti u datoteci nisu nuÅ¾no sortirani.*/
 
 #define _CRT_SECURE_NO_WARNINGS		//da ne moramo koristit windows funckije
 #define N_LENGHT 1024		//ovako nam je kasnije lakse ako moramo povecat
@@ -10,7 +10,7 @@ Napomena: Eksponenti u datoteci nisu nužno sortirani.*/
 
 typedef struct Polinom* Pozicija;		//deklaracija pokazivaca Pozicija na strukturu Polinom
 
-struct Polinom{		//deklaracija strukture
+struct Polinom {		//deklaracija strukture
 	int Koef;		//int za koeficijent
 	int Eks;		//int za eksponent
 	Pozicija Next;		//pokazivac Next na sljedecu strukturu
@@ -19,15 +19,12 @@ struct Polinom{		//deklaracija strukture
 int CitaIzFile(char*, Pozicija);		//prototip funkcije koja cita iz datoteke koja prima ime datoteke i pokazivac na strukturu u koju zapisuje
 int Suma(Pozicija, Pozicija, Pozicija);		//prototip funckije za sumu polinoma koja prima pokazivace na strukture koje zbraja i zadnji na strukturu u koju zapisuje
 int Produkt(Pozicija, Pozicija, Pozicija);		//prototip funckije za produkt polinoma koja prima pokazivace na strukture koje mnozi i zadnji na strukturu u koju zapisuje
-Pozicija StvoriNovu();		//prototip funckije koja stvara novi element liste
+Pozicija StvoriNovu();		//prototip funckije koja stvara novi element liste i vraca pokazivac na Head
 int Ispis(Pozicija);		//prototip funkcije za ispis
 
 int main()		//main funkcija
 {
-	Pozicija HeadP1 = NULL;		//deklaracija i inicijalizacija P1
-	Pozicija HeadP2 = NULL;		//deklaracija i inicijalizacija P2
-	Pozicija HeadSuma = NULL;		//deklaracija i inicijalizacija S
-	Pozicija HeadProdukt = NULL;		//deklaracija i inicijalizacija P
+	Pozicija HeadP1 = NULL, HeadP2 = NULL, HeadSuma = NULL, HeadProdukt = NULL;		//deklaracija i inicijalizacija P1,P2,Suma i Produkt
 	char fileName[N_LENGHT];		//deklaracija fileName koje predstavlja ime datoteke
 	HeadP1 = StvoriNovu();		//stvara novu i vraca pokazivac 
 	HeadP2 = StvoriNovu();		//stvara novu i vraca pokazivac 
@@ -46,9 +43,9 @@ int main()		//main funkcija
 	Suma(HeadP1->Next, HeadP2->Next, HeadSuma);		//prima pokazivac na prvi clan na drugi clan i na HeadSuma i zbraja ih
 	printf("Suma:\n");		//printf Suma
 	Ispis(HeadSuma->Next);		//ispisuje sumu
-	Produkt(HeadP1->Next, HeadP2->Next, HeadProdukt);		//prima pokazivac na prvi clan na drugi clan i na HeadProdukt i mnozi ih
-	printf("Produkt:\n");		//printf Produkt
-	Ispis(HeadProdukt->Next);		//ispisuje produkt
+	//Produkt(HeadP1->Next, HeadP2->Next, HeadProdukt);		//prima pokazivac na prvi clan na drugi clan i na HeadProdukt i mnozi ih
+	//printf("Produkt:\n");		//printf Produkt
+	//Ispis(HeadProdukt->Next);		//ispisuje produkt
 
 	return 0;		//vraca nulu ako je sve bilo u redu
 }
@@ -65,13 +62,13 @@ int Ispis(Pozicija P)		//funkcija za ispis prima pokazivac na prvi clan onoga ko
 
 Pozicija StvoriNovu()		//funckija koja stvara novu strukturu tj novu listu te ne prima nista a vraca pokazivac na listu koju je stvorila
 {
-	Pozicija temp = NULL;		//deklarira novi objekt temp i inicijalizira ga na NULL
-	temp = (Pozicija)malloc(sizeof(struct Polinom));		//dinamicka alokacija memorije za temp
-	if (temp == NULL)	printf("Greska");		//ispise Greska ako je doslo do greske prilikom alokacije memorije
-	
-	temp->Next = NULL;		//stavlja pokazivac na Next na NULL
+	Pozicija Nova = NULL;		//deklarira novi objekt temp i inicijalizira ga na NULL
+	Nova = (Pozicija)malloc(sizeof(struct Polinom));		//dinamicka alokacija memorije za temp
+	if (Nova == NULL)	printf("Greska");		//ispise Greska ako je doslo do greske prilikom alokacije memorije
 
-	return temp;		//vraca pokazivac na listu tj na Head liste
+	Nova->Next = NULL;		//stavlja pokazivac na Next na NULL
+
+	return Nova;		//vraca pokazivac na listu tj na Head liste
 }
 
 int CitaIzFile(char* filename, Pozicija P)		//funckija koja cita polinom iz datoteke a prima ime datoteke i Head liste u koju sprema
@@ -79,11 +76,11 @@ int CitaIzFile(char* filename, Pozicija P)		//funckija koja cita polinom iz dato
 	Pozicija temp1 = P;		//pridodijelili smo varijabli temp1 vrijednost P
 	Pozicija temp2 = NULL;		//objekt deklariran i inicijaliziran na NULL
 	FILE* fp = NULL;		//pokazivac na datoteku inicijaliziran na NULL
-	char* buffer;		//pokazivac na ime datoteke
-	buffer = (char*)malloc(N_LENGHT* sizeof(buffer));		//dinamicka alokacija za buffer
+	char* buffer = NULL;		//pokazivac na buffer inicijaliziran na NULL
+	buffer = (char*)malloc(N_LENGHT * sizeof(buffer));		//dinamicka alokacija za buffer
 	fp = fopen(filename, "r");		//otvara file
 	if (fp == NULL)	printf("Greska");		//ispisuje Greska ako je pokazivac na datoteku NULL
-	
+
 	while (!feof(fp))		//izvrsava se dok nije doslo do kraja funkcije
 	{
 		memset(buffer, 0, N_LENGHT);		//popuni string u bufferu duljine N_LENGHT i popuni sa 0 
@@ -92,12 +89,12 @@ int CitaIzFile(char* filename, Pozicija P)		//funckija koja cita polinom iz dato
 		{
 			temp2 = StvoriNovu();		//stvara novu datoteku i vraca pokazivac na nju i pridodijeljuje ga temp2
 			sscanf(buffer, "%d %d", &temp2->Koef, &temp2->Eks);		//iz buffera upisuje u temp2 
-			P = temp1;		//pokazivac temp1 pridodjeljuje P
-			while (P->Next != NULL && P->Next->Eks >= temp2->Eks)		//izvsava se dok Next od P nije NULL i dok temp2 eksponent nije manji od sljedeceg P ili temp1 eksponenta
-				P = P->Next;		//prebacuje na sljedecu strukturu
+			P = temp1;		//ovo je potrebno zbog donjeg while-a
+			while (P->Next != NULL && P->Next->Eks >= temp2->Eks)		//ova linija trazi koji po redu ima isti eksponent
+				P = P->Next;		//prebacuje na sljedecu strukturu dok ne naide na isti ili veci eksponent
 			if (P->Eks == temp2->Eks)		//izvrsava se ako je P eksponent isti kao i temp2 eksponent 
 			{
-				P->Koef += temp2->Koef;		//zbraja koeficijent iz temp2 na koeficijent P
+				P->Koef = temp2->Koef;		//zbraja koeficijent iz temp2 na koeficijent P
 			}
 			else {		//u protivnom izvrsava
 				temp2->Next = P->Next;		//pokazivac na strukturu koja je nakon P prebacujemo na mjesto iza temp2
@@ -106,7 +103,7 @@ int CitaIzFile(char* filename, Pozicija P)		//funckija koja cita polinom iz dato
 		}
 		else continue;		//ako uvjet od if nije ispunjen preskace funkciju i ide dalje
 	}
-	free(buffer);		//oslobada memoriju zauzetu od strane buffer-a
+	buffer = NULL;		//oslobada memoriju zauzetu od strane buffer-a
 	fclose(fp);		//zatvara datoteku da je i drugi programi mogu koristiti
 	return 0;		//vraca 0 ako je sve u redu
 }
@@ -114,15 +111,15 @@ int CitaIzFile(char* filename, Pozicija P)		//funckija koja cita polinom iz dato
 int Suma(Pozicija P1, Pozicija P2, Pozicija Suma)		//funkcija prima pokazivace na dva koja zbraja i na sumu di zapisuje
 {
 	Pozicija temp1 = NULL;		//temp1 deklarira i inicijalizira na NULL
-	Pozicija temp2;		//deklaracija pokazivaca temp2
-	while (P1 != NULL && P2 != NULL)		//izvrsava se dok P1 i P2 nisu nula tj njihovi pokazivaci
+	Pozicija temp2 = NULL;		//temp2 deklarira i inicijalizira na NULL
+	while (P1 != NULL && P2 != NULL)		//izvrsava se dok P1 i P2 nisu nula tj. njihovi pokazivaci
 	{
-		temp1 = StvoriNovu();		//stvara se novi Head za temp1 tj vraca pokazivac na Head
-		if (P1->Eks > P2->Eks)		//ako je eksponent iz P1 veci od onoga iz P2 onda se izvrsava
+		temp1 = StvoriNovu();		//stvara se novi Head za temp1 tj vraca pokazivac na Head,mora pomocu stvori novu inace 
+		if (P1->Eks > P2->Eks)		//ako je eksponent iz P1 veci od onoga iz P2 onda se izvrsava,jer ih slaze po redu pocevsi od najmanjeg eksponenta
 		{
 			temp1->Eks = P1->Eks;		//eksponent iz P1 se pridodjeljuje temp1
 			temp1->Koef = P1->Koef;		//koeficijent iz P1 se pridodjeljuje temp1
-			P1 = P1->Next;		//Next iz P1 se inicijalizira na mjesto pokazivaca na P1
+			P1 = P1->Next;		//Next iz P1 se prebaci na mjesto pokazivaca na P1
 		}
 		else if (P1->Eks < P2->Eks)		//ako je eksponent iz P1 manji od onoga iz P2 onda se izvrsava
 		{
@@ -139,20 +136,9 @@ int Suma(Pozicija P1, Pozicija P2, Pozicija Suma)		//funkcija prima pokazivace n
 		}
 		temp1->Next = Suma->Next;		//pokazivac na C Next se pridodjeljuje temp1 Next
 		Suma->Next = temp1;		//pokazivac na temp1 se pridodjeljuje C Next
-		Suma = temp1;		//pokazivac na temp1 se pridodjeljuje pokazivacu na C
-	}
-	if (P1 == NULL)		//izvrsava se ako je pokazivac na Head od P1 NULL
-		temp2 = P2;		//pokazivac na P2 se pridodjeljuje pokazivacu na temp2
-	else temp2 = P1;		//ako if nije ispunjen onda se pokazivac na P1 pridodjeljuje pokazivacu na temp2
-	while (temp2 != NULL)		//dok pokazivac na temp2 nije NULL se izvrsava
-	{
-		temp1 = StvoriNovu();		//stvara se novi Head za temp1
-		temp1->Eks = temp2->Eks;		//izjednacava se temp1 eksponent sa temp2 eksponent
-		temp1->Koef = temp2->Koef;		//izjednacava se temp1 koeficijent sa temp2 koeficijentom
-		temp1->Next = Suma->Next;		//pokazivac na temp1 Next se izjednacava sa C Next 
-		Suma->Next = temp1;		//pokazivac na sumu Next tj na C Next se izjednacava sa temp1
-		Suma = temp1;		//pokazivac na sumu C se izjednacava sa temp1
-	}
+		Suma = temp1;		//Head od temp1 se pridodjeljuje pokazivacu na C
+	}		//ova while petlja zbraja a ima tri if-a jer moze biti prvi veci manji ili jednak drugom koeficijentu
+
 	return 0;		//vraca 0 ako je sve u redu
 }
 
