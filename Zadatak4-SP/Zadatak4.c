@@ -43,10 +43,13 @@ int main()		//main funkcija
 	Suma(HeadP1->Next, HeadP2->Next, HeadSuma);		//prima pokazivac na prvi clan na drugi clan i na HeadSuma i zbraja ih
 	printf("Suma:\n");		//printf Suma
 	Ispis(HeadSuma->Next);		//ispisuje sumu
-	//Produkt(HeadP1->Next, HeadP2->Next, HeadProdukt);		//prima pokazivac na prvi clan na drugi clan i na HeadProdukt i mnozi ih
-	//printf("Produkt:\n");		//printf Produkt
-	//Ispis(HeadProdukt->Next);		//ispisuje produkt
 
+
+	Produkt(HeadP1->Next, HeadP2->Next, HeadProdukt);		//prima pokazivac na prvi clan na drugi clan i na HeadProdukt i mnozi ih
+	printf("Produkt:\n");		//printf Produkt
+	Ispis(HeadProdukt->Next);		//ispisuje produkt
+
+	system("Pause");
 	return 0;		//vraca nulu ako je sve bilo u redu
 }
 
@@ -154,25 +157,12 @@ int Produkt(Pozicija P1, Pozicija P2, Pozicija Produkt)		//funkcija Produkt prim
 		{
 			temp1 = StvoriNovu();		//stvara novi Head i vraca pokazivac na njega na temp1
 			temp1->Eks = P1->Eks + P2->Eks;		//zbraja eksponente od P1 i P2 i pridodjeljuje tu vrijednost na temp1 eksponent
-			temp1->Koef = P1->Koef + P2->Koef;		//zbraja koeficijente od P1 i P2 i pridodjeljuje tu vrijednost na temp1 koeficijent
-			Produkt = temp1;		//pokazivac na temp1 nakon odradenog zbroja pridodjeljuje Produkt-u
-			while (Produkt->Next != NULL && Produkt->Next->Eks > temp1->Eks)		//izvrsava se dok Produkt Next nije NULL i dok eksponent od Produkt Next nije veci od eksponenta od temp1
-				Produkt = Produkt->Next;		//pokazivacu na Produkt pridodjeljuje pokazivac na Produkt Next
-			if (Produkt->Next != NULL && Produkt->Next->Eks == temp1->Eks)		//izvrsava se ako Produkt Next nije NULL i ako Produkt Next eksponent nije isti kao temp1 eksponent
-			{
-				Produkt->Next->Koef += temp1->Koef;		//temp1 koeficijent zbraja na Produkt Next koeficijent
-				free(temp1);		//oslobada temp1 memoriju
-				if (Produkt->Next->Koef == 0)		//ako je Produkt Next koeficijent 0 onda se izvrsava
-				{
-					temp1 = Produkt->Next;		//pokazivac Produkt Next postavlja na temp1
-					Produkt->Next = temp1->Next;		//pokazivac temp1 Next postavlja na Produkt Next
-					free(temp1);		//oslobada temp1 memoriju
-				}
-			}
-			else {		//ako if uvjet nije ispunjen se ovo izvrsava
-				temp1->Next = Produkt->Next;		//Produkt Next se pridodjeljuje temp1 Next
-				Produkt->Next = temp1;		//pokazivac na temp1 se pridodjeljuje na Produkt Next
-			}
+			temp1->Koef = P1->Koef * P2->Koef;		//zbraja koeficijente od P1 i P2 i pridodjeljuje tu vrijednost na temp1 koeficijent
+
+			temp1->Next = Produkt->Next;		//pokazivac na C Next se pridodjeljuje temp1 Next
+			Produkt->Next = temp1;		//pokazivac na temp1 se pridodjeljuje C Next
+			Produkt = temp1;		//Head od temp1 se pridodjeljuje pokazivacu na C
+
 			P2 = P2->Next;		//P2 Next se pridodjeljuje pokazivacu na P2
 		}
 		P1 = P1->Next;		//P1 Next se pridodjeljuje pokazivacu na P1
