@@ -1,3 +1,6 @@
+
+// triba provjerit ako je prezime manje od 5 slova kako se ponasa
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
@@ -32,6 +35,7 @@ int CitajIzDat(Pozicija);
 int Ispis(Pozicija);
 int IzracunajHashKljuc(char*, int);
 hashTab InicijalizacijaTablice(int);
+int UpisuHashTablicu(Pozicija, hashTab, int);
 
 int main()
 {
@@ -42,16 +46,16 @@ int main()
 	char *V = "Mateafff";
 
 	HeadS.Next = NULL;
-	HeadT = InicijalizacijaTablice(velicinaTablice);
 
 	CitajIzDat(&HeadS);
 
-	Ispis(HeadS.Next);
+	HeadT = InicijalizacijaTablice(velicinaTablice);
+
+	UpisuHashTablicu(HeadS.Next, HeadT, velicinaTablice);
 
 	
-	
 
-
+	/*Ispis(HeadS.Next);*/
 	system("pause");
 	return 0;
 }
@@ -64,16 +68,19 @@ hashTab InicijalizacijaTablice(int velicinaTablice)
 	H = (hashTab)malloc(sizeof(struct hashTablica));
 	if (!H) return ERROR;
 
+	H->velicinaTablice = velicinaTablice;
+
 	H->hashLista = (Lista *)malloc(sizeof(Lista)*velicinaTablice); // alociramo prostor za cijelu tablicu (nama 11 mjesta)
 	if (!H->hashLista) return ERROR;
 
 	for (i = 0; i < velicinaTablice; i++)
 	{
-		H->hashLista[i] = NULL;
-	}
+ 		H->hashLista[i] = NULL;
+   	}
 
 	return H;
 }
+
 
 int IzracunajHashKljuc(char *rijec, int velicinaTab)
 {
@@ -117,6 +124,32 @@ int CitajIzDat(Pozicija P) {
 	fclose(fp);		
 
 	return 0;		
+}
+
+int UpisuHashTablicu(Pozicija P, hashTab H, int velTab)
+{
+	int i = 0, kljuc;
+	Pozicija temp = NULL; // stvaramo temp pokazivac jer triba listu stvorenu iz citanja file-a izbrisat, pa da ne minjamo pokazivace originala
+
+	while (P != NULL){
+		
+
+		kljuc = IzracunajHashKljuc(P->prezime, velTab);
+
+		if (H->hashLista[kljuc] != NULL)
+			H->hashLista[kljuc]->Next = P;
+		else
+			H->hashLista[kljuc] = P;
+		temp = (Pozicija)malloc(sizeof(struct Student));
+		temp = P;
+		P = P->Next;
+		temp->Next = NULL;
+	}
+	/*for (i = 0; i < velTab; i++){
+		P = (Pozicija)malloc(sizeof(struct Student));
+		P->maticniBroj = i;
+		H->hashLista[i] = P;
+	}*/
 }
 
 int Ispis(Pozicija P)
