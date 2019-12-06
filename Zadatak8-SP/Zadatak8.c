@@ -1,8 +1,8 @@
-/*8. Napisati program koji pomoÊu vezanih listi(stabala) predstavlja strukturu 
-direktorija.OmoguÊiti unos novih direktorija i pod - direktorija, ispis sadrûaja 
-direktorija i povratak u prethodni direktorij.ToËnije program treba preko menija 
-simulirati koriötenje DOS naredbi : 
-1 - "md", 2 - "cd dir", 3 - "cd..", 4 - "dir" i 5 ñ izlaz.*/
+/*8. Napisati program koji pomoƒáu vezanih listi(stabala) predstavlja strukturu 
+direktorija.Omoguƒáiti unos novih direktorija i pod - direktorija, ispis sadr≈æaja 
+direktorija i povratak u prethodni direktorij.Toƒçnije program treba preko menija 
+simulirati kori≈°tenje DOS naredbi : 
+1 - "md-make directory", 2 - "cd dir-change directory", 3 - "cd..-print directory", 4 - "dir-return in previous" i 5 ‚Äì izlaz.*/
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -10,14 +10,14 @@ simulirati koriötenje DOS naredbi :
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct Direktorij *PozicijaD;		//ne kuzim ove direktorije
+typedef struct Direktorij *PozicijaD;
 typedef struct Stog *PozicijaS;
 
 struct Direktorij
 {
     char Ime[20];
-    PozicijaD NextD;
     PozicijaD Osoba;
+	PozicijaD NextD;
 };
 
 struct Stog
@@ -41,14 +41,16 @@ int main()
     PozicijaD Root=NULL;
     Root=StvoriNoviD();
     PozicijaD Trenutni=Root;
+    
     PozicijaS Stog=NULL;
     Stog=StvoriNoviS();
-    char Izbor=0;
+    
+    char Izbor=NULL;		//stavia sam NULL umisto 0
 
      printf("Unesite ime Root direktorija:");
     scanf(" %s",Root->Ime);
 
-    while(Izbor!='k'&&Izbor!='K')
+    while(Izbor!='k' && Izbor!='K')
     {
         printf("Unesite svoj izbor:\n1-Make directory\n2-Change directory\n3-Print directory\n4-Vrati se u prethodni direktorij tj. cd..\nK-kraj\n");
         scanf(" %c",&Izbor);
@@ -77,7 +79,7 @@ int main()
     return 0;
 }
 
-PozicijaD cdt(PozicijaS Stog)
+PozicijaD cdt(PozicijaS Stog)		//create directory
 {
     PozicijaD temp1=NULL;
     PozicijaS temp2=NULL;
@@ -94,13 +96,13 @@ PozicijaD cdt(PozicijaS Stog)
 
 int IspisDirektorij(PozicijaD P)
 {
-    int BrojDirektorija=0;
+    int BrojDirektorija=0;	
 
     if(P==NULL)	 printf("Nema Root direktorija!");
 
     printf("Direktorij %s:\n",P->Ime);
 
-    P=P->Osoba;
+    P=P->Osoba;		//pristupa pod direktorijima(na neki nacin pamti child directory)
 
     if(P==NULL) return 1;
 
@@ -108,7 +110,7 @@ int IspisDirektorij(PozicijaD P)
     {
         printf(" %s\n",P->Ime);
         P=P->NextD;
-        BrojDirektorija++;
+        BrojDirektorija++;		//koliko duboko je na neki nacin
     }
 
     printf("%d je BrojDirektorija\n",BrojDirektorija);
@@ -122,7 +124,7 @@ PozicijaD Trazi(char* Ime,PozicijaD P)
 
     P=P->Osoba;
 
-    while(P!=NULL&&strcmp(P->Ime,Ime)!=0)
+    while(P!=NULL && strcmp(P->Ime,Ime)!=0)
 			 P=P->NextD;
 
     if(P==NULL)		printf("Trazeni direktorij nije pronaden!");
