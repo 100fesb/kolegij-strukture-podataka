@@ -1,173 +1,183 @@
-/*9. Napisati program koji omoguæava rad s binarnim 
-stablom pretraživanja.Treba omoguæiti unošenje novog elementa 
-u stablo, ispis elemenata, brisanje i pronalaženje nekog elementa.*/
+/*
+Napisati program koji omoguÄ‡ava rad s binarnim stablom pretraÅ¾ivanja. Treba
+omoguÄ‡iti unoÅ¡enje novog elementa u stablo, ispis elemenata, brisanje i pronalaÅ¾enje
+nekog elementa.
+*/
 
 #define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-typedef struct Stablo* StabloP;
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<ctype.h>
+#include<time.h>
+
+#define ERROR -1
+#define SUCCESS 0
+#define BUFFER_LENGTH 1024
+
+typedef struct Stablo* Pozicija;
 
 struct Stablo
 {
 	int El;
-	StabloP Left;
-	StabloP Right;
+	Pozicija Right;
+	Pozicija Left;
 };
 
-StabloP StvoriNovo();
-StabloP Umetni(StabloP, int);
-StabloP Trazi(StabloP, int);
-StabloP Brisi(StabloP, int);
-StabloP TraziNajmanji(StabloP);
-int Ispis(StabloP);
+int Izbornik();
+Pozicija Unesi(Pozicija, int);
+int Print(Pozicija);
+Pozicija TraziNajmanji(Pozicija);
+Pozicija Izbrisi(Pozicija, int);
+Pozicija Trazi(Pozicija, int);
 
 int main()
 {
-	StabloP S = NULL;
-	char Izbor = 0;
-	int Broj=0;
-	StabloP Trazeni = NULL;
+	Pozicija root = NULL;
+	Pozicija nadjeni = NULL;
+	int izbor = -1;
+	int n = 0;
 
-	while (Izbor != 'k' && Izbor != 'K')		//ako unesemo k/K program se prekida
+	do
 	{
-		printf("Unesite svoj izbor:\n1-Unos elementa u stablo\n2-Brisanje elementa\n3-Trazenje elementa\n4 - Ispis stabla\n");
-		scanf(" %c", &Izbor);
+		Izbornik();
+		scanf("%d", &izbor);
 
-		switch (Izbor)
-		{
-		case'1':
-			printf("Koji element zelite unijeti u stablo?\r\n");
-			scanf("%d", &Broj);
-			S = Umetni(S, Broj);
+		switch (izbor) {
+		case 1:		// izbor unos elementa
+			printf("Unesite zeljeni element za unos: ");
+			scanf("%d", &n);
+			root = Unesi(root, n);
+			printf("\nroot je:%d\n", root->El);
 			break;
-		case '2':
-			printf("Koji element zelite izbrisati iz stabla?\r\n");
-			scanf("%d", &Broj);
-			S = Brisi(S, Broj);
+		case 2:		// izbor brisanja elementa
+			if (!root) printf("Stablo je prazno!");
+			else {
+				printf("Koji element brisemo: ");
+				scanf("%d", &n);
+				root = Izbrisi(root, n);
+			}
 			break;
-		case '3':
-			printf("Koji element zelite pronaci?\r\n");
-			scanf("%d", &Broj);
-			Trazeni = Trazi(S, Broj);
-			if (Trazeni != NULL)
-				printf("Trazeni element %d je u stablu!\r\n", Trazeni->El);
+		case 3:		// izbor trazenja elementa
+			printf("Koji element trazimo: ");
+			scanf("%d", &n);
+			nadjeni = Trazi(root, n);
+
+			if (!nadjeni) printf("Nismo nasli taj element");
+			else {
+				printf("Nasli smo %d na adresi 0x%xh.\n", n, nadjeni);
+			}
+
 			break;
-		case'4':
-			printf("Vase stablo:\r\n");
-			Ispis(S);
+		case 4:		// izbor ispisa elemenata
+			Print(root);
 			break;
-		case'k':
-			break;
-		case'K':
-			break;
+		default:
+			printf("\nKrivi Unos!\n");
 		}
-	}
 
-	return 0;
+	} while (izbor != 0);
+
+	system("pause");
+	return SUCCESS;
 }
 
-int Ispis(StabloP S)		//ispisuje pomocu rekurzije sljedeci pravilo prvo lijevo pa desno
+int Izbornik()
 {
-	if (S != NULL)
-	{
-		Ispis(S->Left);
-		printf("%d\t", S->El);
-		Ispis(S->Right);
-	}
+	printf("\nIzaberite:\n\t1 za Unos elementa\n\t2 za Brisanje elementa\n\t3 za Trazenje elementa\n\t4 za Ispis elementa\n\t0 za Izlaz\nIzbor: ");
 
-	return 0;
+	return SUCCESS;
 }
 
-StabloP TraziNajmanji(StabloP S)		//ova nam funkcija treba kad brisemo jer moramo paziti da su poredani po velicini
+Pozicija Unesi(Pozicija P, int n)
 {
-	if (S != NULL)
+	if (!P)
 	{
-		while (S->Left != NULL)
-			S = S->Left;
+		P = (Pozicija)malloc(sizeof(struct Stablo));
+		if (!P)
+		{
+			printf("Greska alokacije memorije");
+			return P;
+		}
+
+		P->El = n;
+		P->Left = NULL;
+		P->Right = NULL;
 	}
-	return S;
+	else if (P->El < n)
+		P->Right = Unesi(P->Right, n);
+	else if (P->El > n)
+		P->Left = Unesi(P->Left, n);
+	else
+		printf("Element vec postoji.");
+	return P;
 }
 
-StabloP Brisi(StabloP S, int X)		
+int Print(Pozicija P)		//ispis je sve u isti red
 {
-	StabloP temp;
-
-	if (S == NULL)
-	{
-		printf("Element koji zelite izbrisati ne postoji!");
-		return NULL;
+	if (P) {
+		Print(P->Left);
+		printf(" %d", P->El);
+		Print(P->Right);
 	}
-	else if (S->El > X)		//pomocu ova dva else if odredujemo u koje cemo granu stabla dalje traziti
-		S->Left = Brisi(S->Left, X);
-	else if (S->El < X)
-		S->Right = Brisi(S->Right, X);
+
+	return SUCCESS;
+}
+
+Pozicija TraziNajmanji(Pozicija P)
+{
+	if (P != NULL)
+	{
+		while (P->Left != NULL)
+			P = P->Left;
+	}
+
+	return P;
+}
+
+Pozicija Trazi(Pozicija P, int n)
+{
+	if (P == NULL)
+		return P;
+
+	if (P->El > n)
+		return Trazi(P->Left, n);
+	else if (P->El < n)
+		return Trazi(P->Right, n);
+	else
+		return P;
+}
+
+Pozicija Izbrisi(Pozicija P, int n)
+{
+	Pozicija tmp;
+	if (P == NULL)
+	{
+		printf("Element nije pronadjen.");
+	}
+	else if (n < P->El)
+		P->Left = Izbrisi(P->Left, n);
+	else if (n > P->El)
+		P->Right = Izbrisi(P->Right, n);
 	else
 	{
-		if (S->Left != NULL && S->Right != NULL)		//ako je list onda ovako brisemo 
+		if (P->Left != NULL && P->Right != NULL)
 		{
-			temp = TraziNajmanji(S->Right);
-			S->El = temp->El;
-			S->Right = Brisi(S->Right, S->El);
+			tmp = TraziNajmanji(P->Right);
+			P->El = tmp->El;
+			P->Right = Izbrisi(P->Right, tmp->El);
 		}
-		else {		//ako nije list onda moramo gledamo na koju stranu povezujemo 
-			temp = S;
-			if (S->Left == NULL)
-				S = S->Right;
-			else if (S->Right == NULL)
-				S = S->Left;
-			free(temp);
+		else
+		{
+			tmp = P;
+			if (P->Left == NULL)
+				P = P->Right;
+			else
+				P = P->Left;
+			free(tmp);
 		}
 	}
 
-	return S;
-}
-
-StabloP Trazi(StabloP S, int X)
-{
-	if (S == NULL)
-	{
-		printf("Element koji trazite ne postoji!");
-		return NULL;
-	}
-	else if (S->El > X)
-		return Trazi(S->Left, X);
-	else if (S->El < X)
-		return Trazi(S->Right, X);
-
-	else return S;
-}
-
-StabloP Umetni(StabloP S, int X)
-{
-	if (S == NULL)
-	{
-		S = StvoriNovo();
-		S->El = X;
-	}
-	else if (S->El > X)
-		S->Left = Umetni(S->Left, X);
-	else if (S->El < X)
-		S->Right = Umetni(S->Right, X);
-	else printf("Ovaj element u stablu vec postoji!");
-
-	return S;
-}
-
-StabloP StvoriNovo()
-{
-	StabloP S = NULL;
-	S = (StabloP)malloc(sizeof(struct Stablo));
-
-	if (S == NULL)
-	{
-		printf("Greska prilikom alokacije memorije!");
-		return NULL;
-	}
-
-	S->Left = NULL;
-	S->Right = NULL;
-
-	return S;
+	return P;
 }
