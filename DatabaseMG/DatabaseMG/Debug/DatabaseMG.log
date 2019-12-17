@@ -1,5 +1,0 @@
-﻿  Main.c
-c:\users\korisnik\desktop\databasemg\databasemg\main.c(27): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-          c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(304) : see declaration of 'scanf'
-  LINK : C:\Users\Korisnik\Desktop\DatabaseMG\Debug\DatabaseMG.exe not found or not built by the last incremental link; performing full link
-  DatabaseMG.vcxproj -> C:\Users\Korisnik\Desktop\DatabaseMG\Debug\DatabaseMG.exe
